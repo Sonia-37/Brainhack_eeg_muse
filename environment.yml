@@ -1,0 +1,19 @@
+name: muse
+channels:
+  - conda-forge      
+  - defaults
+
+dependencies:
+  - python=3.10
+  - ipykernel
+  - pandas
+  - numpy
+  - pywavelets
+  - matplotlib
+  - scipy
+  - pip
+  - pip:
+      - mne
+      - muselsl
+      - fooof
+      - antropy
