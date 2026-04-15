@@ -12,6 +12,7 @@ dependencies:
   - matplotlib
   - scipy
   - pip
+  - pingouin
   - pip:
       - mne
       - muselsl

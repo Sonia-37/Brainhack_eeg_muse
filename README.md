@@ -17,7 +17,7 @@ python -m ipykernel install --user --name=muse --display-name="Python (muse)"
 In case you encounter any issues with the `.yml` file, you can create the environment manually by running these commands:
 
 ```bash
-conda create --name muse -c conda-forge -c defaults python=3.10 ipykernel pandas numpy pywavelets matplotlib scipy pip -y
+conda create --name muse -c conda-forge -c defaults python=3.10 ipykernel pandas numpy pywavelets matplotlib scipy pingouin pip -y
 conda activate muse
 pip install mne muselsl fooof antropy
 python -m ipykernel install --user --name=muse --display-name="Python (muse)"
@@ -74,140 +74,149 @@ If the signal is poor, try the following troubleshooting steps:
 
 **Repeat step 3 (Recording a Test Sample)** until all electrodes show a clean signal within the correct range.
 
+---
 
 ## 3. Automating Your Experiment [eeg_setup.py](eeg_setup.py) 
 
-The `eeg_setup.py` script is designed to handle folder creation and recording for multiple participants. 
+The `eeg_setup.py` script is designed to handle complex folder creation and manage recording sessions for multiple participants. It ensures that data is never lost and is always saved in a standardized format.
 
 ### What does this script actually do?
 It acts as both an **Organizer** and a **Recording Assistant**:
-1. **The Organizer:** It instantly builds a massive, perfectly organized folder tree for your entire study. It creates a dedicated space for every participant, session, and condition.
-2. **The Assistant:** When you are ready to record, it asks you a few simple questions (e.g., "Which participant is this?" and "Is this pre- or post-experiment?"). It then automatically launches the Muse recording and saves the `.csv` file directly into the correct folder with a neat timestamp. 
+
+1.  **The Organizer:** It builds a deep, perfectly organized folder tree for your entire study. It creates dedicated sub-folders for every participant, session, and experimental condition.
+    * **Folder Structure:** It creates a hierarchy like this: `eeg_study/participant_01/session_1/pre/open_eyes/csv/`.
+    * **Placeholders:** It also creates empty `raw/` and `filtered/` folders within each condition to hold your processed data later.
+2.  **The Assistant:** When you record, it asks simple questions (e.g., "Which participant?", "Which session?"). It automatically:
+    * **Checks Groups:** It reads `participants.csv` to tell you if the person is in the **Control** or **Research** group.
+    * **Labels Files:** It names the file with a unique timestamp: `P01_S1_pre_open_eyes_20240415_1030.csv`.
+    * **Manages Logic:** It can queue up multiple recordings (e.g., "Record pre-task open eyes, then closed eyes") so you don't have to restart the script between every 2-minute trial.
 
 ### How to use it:
 
-Open your terminal, make sure you are in the same folder as the script, and use one of these two commands:
+Open your terminal, ensure you are in the same folder as the script, and follow these steps:
 
-**1. To just create the folders (Do this first):**
+**1. Prepare your participant list:**
+Ensure you have a `participants.csv` file in the same directory. The script uses the `group` column to help you track your experimental conditions:
+```csv
+id, his_id, first_name, sex, birthday, hand, group
+1, P01, Alice, 2, 1995-05-14, 1, experimental
+2, P02, Bob, 1, 1998-11-20, 1, control
+```
+
+**2. Initialize the folders (Do this once):**
 ```bash
 python eeg_setup.py --setup-only
 ```
-*This will generate an `eeg_study/` folder containing subfolders for all your participants, sessions, and conditions without starting any recordings.*
+*This instantly generates the `eeg_study/` folder tree for all participants and sessions.*
 
-**2. To run an actual recording session:**
+**3. Run an actual recording session:**
 ```bash
 python eeg_setup.py
 ```
-*The script will greet you and ask for the Participant Number, Session Number and if it is pre or post recording. It will then automatically guide you through recording the "eyes open" and "eyes closed" conditions, saving the data exactly where it belongs.*
+* The script will display a summary of your participants and their assigned groups.
+* It will ask for the **Participant Number** and **Session Number**.
+* **Choose Timing:** Select if you are recording `pre`, `post`, or `both`.
+* **Choose Condition:** Select `open_eyes`, `closed_eyes`, or a sequence of both.
+* The script will then guide you through each recording. Press **ENTER** when the participant is ready to start the `muselsl` stream.
 
 ### What YOU can change:
-If you open the `eeg_setup.py` file in any text editor, you will see a block of settings near the top. You can safely change the numbers inside this code to fit your specific experiment:
+Open `eeg_setup.py` in a text editor to adjust the experiment parameters at the top:
 
-* **`N_PARTICIPANTS = 5`**: Change the the total number of people participating in your study. 
-* **`N_SESSIONS = 3`**: Change if your participants are doing more or fewer sessions.
-* **`RECORDING_SECS = 120`**: This controls how long the Muse records data for each condition. `120` means 120 seconds (2 minutes).
-* **`BASE_DIR = "eeg_study"`**: This is the name of the master folder the script will create.
+* **`N_PARTICIPANTS = 5`**: The total number of people in your study.
+* **`N_SESSIONS = 3`**: How many times each person returns for a session.
+* **`RECORDING_SECS = 120`**: The duration of each EEG recording (in seconds).
+* **`GROUP_LABELS`**: You can change the descriptions for "control" and "research" to match your specific study goals.
 
+---
 
 ## 4. Cleaning and Processing the Data [preprocess.py](preprocess.py)
 
-After you have recorded your EEG data, you are left with raw `.csv` files. While these contain your brainwave readings, they aren't quite ready for scientific analysis yet. They lack important metadata (like who the participant is) and are full of background noise.
-
-The `preprocess.py` script acts as your automated data cleaner. It takes the messy `.csv` files, cleans them up, attaches the participant's information, and converts them into `.fif` files, which are the standard format used by professional EEG analysis software (like MNE-Python).
+After recording, you are left with raw `.csv` files. These files contain raw voltage but lack the metadata and cleanliness required for scientific study. The `preprocess.py` script acts as your automated data cleaner and converter.
 
 ### What does this script actually do?
-1. **Reads the `participants.csv` file:** It looks at a master spreadsheet you create to find information about the participant (e.g., age, sex, handedness) and attaches this data directly to the EEG recording.
-2. **Finds the Right Data:** It automatically digs into your `eeg_study` folder to find the most recent `.csv` recording for the specific participant and session you ask for.
-3. **Converts to `.fif` format:** It transforms the raw `.csv` data into a `raw.fif` file, securely saving it in the `raw/` folder you created earlier.
-4. **Applies Filters (The Cleaning Process):** It acts like a digital sieve to remove noise.
-   * **Notch Filter:** Removes the exact frequency of the electrical hum from the power lines in your building (set to 50 Hz and 100 Hz).
-   * **Bandpass Filter:** Removes extremely slow signals (like sweat or slow movement) and extremely fast signals (like muscle clenches), keeping only the brainwave frequencies we care about (between 0.5 Hz and 35 Hz). Removes extremely slow signals (like sweat or slow movement) and extremely fast signals (like muscle clenches), keeping only the brainwave frequencies we care about (between 0.5 Hz and 35 Hz). (In studies we usually take 0.5 - 35 Hz or 1 - 40 Hz)
-5. **Generates Quality Reports:** It draws several visual graphs before and after filtering, saving them as images so you can prove the data is clean.
-6. **Saves the Final Product:** It saves this newly cleaned data as a `filtered.fif` file in your `filtered/` folder.
-
-### Before you run it:
-You **must** create a file named `participants.csv` in the same folder as this script. This file needs to contain the details of the people in your study. It should look exactly like this:
-
-```csv
-id, his_id, first_name, sex, birthday, hand
-1, P01, Alice, 2, 1995-05-14, 1
-2, P02, Bob, 1, 1998-11-20, 1
-```
-*(Key: Sex: 0 = Unknown, 1 = Male, 2 = Female\
-Hand: 0 = Unknown, 1 = Right, 2 = Left, 3 = Both).*
+1.  **Metadata Injection:** It merges the EEG data with your `participants.csv`. It embeds the participant's ID, sex, age, and handedness directly into the file header.
+2.  **Conversion to Standard Format:** It transforms `.csv` files into `.fif` files. This is the professional standard for EEG, allowing the data to be opened in any major analysis toolbox (MNE, EEGLAB, etc.).
+3.  **Group-Aware Quality Control (QC):** * It generates visual plots of the brainwaves. 
+    * **Smart Colors:** Channels are colored based on the participant's group (**Blue tones for Control**, **Warm tones for Research**) so you can instantly tell them apart during review.
+    * **Noise Detection:** It calculates the Standard Deviation ($SD$) for every channel. It highlights noisy sensors in **Orange** ($>50 \mu V$) or **Red** ($>100 \mu V$) to warn you of bad data.
+4.  **Digital Filtering (The Cleaning):**
+    * **Notch Filter:** Targets $50$ Hz and $100$ Hz to remove the electrical hum from the walls.
+    * **Bandpass Filter:** Removes slow-moving artifacts (sweat/drifts) and fast-moving noise (muscle clenches), keeping only the clean brainwave spectrum ($0.5$–$35$ Hz).
+5.  **Power Spectral Density (PSD):** It creates a frequency graph showing the "strength" of different brainwaves (Alpha, Beta, etc.) to verify the filters worked correctly.
 
 ### How to use it:
-Open your terminal and run the script, providing it with the specifics of the file you want to process. 
 
-**Basic Usage:**
-To process Participant 1, Session 1, for the "pre" (before task) "open_eyes" condition:
+This script is highly flexible. You can process one specific file or your entire study at once.
+
+**1. Process a single trial:**
 ```bash
-python preprocess.py --participant 1 --session 1 --timing pre --condition open_eyes
+python preprocess.py -p 1 -s 1 -t pre -c open_eyes
 ```
-*(You can also use the shorthand letters: `-p 1 -s 1 -t pre -c open_eyes`)*
 
-**Dealing with Bad Sensors:**
-If you noticed during recording that the `AF7` sensor had a terrible connection and was just recording noise, you can tell the script to mark it as a "bad channel" so it doesn't ruin your analysis:
+**2. Handle "Bad" sensors:**
+If you know the `AF7` electrode was loose during a specific recording, tell the script to ignore it:
 ```bash
 python preprocess.py -p 1 -s 1 -t pre -c open_eyes --bad-channels AF7
 ```
 
-**Running Quickly Without Graphs:**
-If you are processing 50 files and don't want to wait for it to draw and save graphs for every single one, you can tell it to skip the visual plots:
-```bash
-python preprocess.py -p 1 -s 1 -t pre -c open_eyes --skip-plots
-```
+**3. Batch Processing (The Power User move):**
+You don't have to run the script 100 times. It can detect what files you have:
+* **Process all sessions for Participant 1:** `python preprocess.py -p 1`
+* **Process Session 1 for EVERYONE:** `python preprocess.py -s 1 -A`
+* **Process the ENTIRE dataset:** `python preprocess.py`
 
 ### What YOU can change:
-If you open the `preprocess.py` file, you can tweak these settings at the top to match your location and study goals:
+Near the top of `preprocess.py`, you can customize the "cleaning" rules:
 
-* **`EXPERIMENTER = " "`**: Change this to your name!
-* **`NOTCH_FREQS = [50.0, 100.0]`**: This removes power line noise. If you are doing this study in North America, change this to `[60.0, 120.0]` because their power grid runs at a different frequency than Europe. 
-* **`BANDPASS = (0.5, 35.0)`**: This defines the window of frequencies you keep. `0.5` removes slow drifts, and `35.0` removes fast muscle noise. If you specifically need to study higher-frequency Gamma waves, you might need to raise `35.0` to something like `50.0`.
-
-> **IMPORTANT NOTE: DO NOT PANIC!** > The `analysis.ipynb` script is the "final boss" of this project. **It will be made available to all participants AFTER the Brainhack.**  
-> *Why?* Because during the event, your primary mission is to try and analise file by yourself. In case it won't work we prepared the ready script for the end of Brainhack.
-
-***
-
-## 5. Analyzing the Results [analysis.ipynb](analysis.ipynb)
-
-If `preprocess.py` was the digital sieve that cleaned your data, `analysis.ipynb` is the laboratory microscope that lets you actually see what the brain was doing. 
-
-Brainwaves are a messy mixture of different frequencies, noises, and patterns all happening at once. This massive notebook does the heavy mathematical lifting to pull those signals apart so we can measure specific brain states and compare them.
-
-### What does this script actually do?
-This notebook automatically scans your entire `eeg_study` folder, processes every single recording it finds, and performs four main jobs:
-
-1. **Calculates Brainwave "Bands" (The Classics):** It separates your data into the famous brainwave categories you might have heard of:
-   * **Delta (1-3 Hz):** Deep sleep / unconsciousness.
-   * **Theta (4-7 Hz):** Drowsiness / deep relaxation.
-   * **Alpha (8-13 Hz):** Relaxed, awake state (usually spikes when you close your eyes!).
-   * **Beta (14-20 Hz):** Active thinking and focus.
-
-2. **Extracts Advanced Brain Metrics (The Cool Stuff):**
-   It doesn't just look at basic waves; it uses advanced math to calculate:
-   * **Brain Symmetry (pdBSI):** Checks if your left brain (TP9) and right brain (TP10) are doing the same thing, or if one side is dominating.
-   * **Complexity & Entropy:** Measures how "unpredictable" or chaotic the brainwaves are. 
-   * **FOOOF (Aperiodic noise):** Separates the actual oscillating brainwaves from the background electrical "noise" of the brain itself.
-   * **Ratios (DAR & DTABR):** Compares slow waves to fast waves, which is often used in research to measure fatigue or cognitive load.
-
-3. **Builds the Master Spreadsheet:**
-   It takes all these hundreds of calculations for every single participant and session, and elegantly packages them into one giant, easy-to-read CSV file called `per_recording_metrics.csv` in your `results/` folder.
-
-4. **Draws the Graphs:**
-   It generates a massive gallery of scientific plots (saving them to `results/figures/`). This includes:
-   * **Spectrograms:** Heatmaps of brain activity over time.
-   * **Radar Charts:** Web-like charts showing the balance of a participant's brainwaves.
-   * **Pre/Post Comparisons:** Line graphs showing exactly how a participant's brain changed between their first recording and their last recording.
+* **`EXPERIMENTER`**: Put your name here so it's saved in the file metadata.
+* **`NOTCH_FREQS = [50.0, 100.0]`**: If you are in the USA or Canada, change `50.0` to `60.0`.
+* **`BANDPASS = (0.5, 35.0)`**: If you want to look at high-frequency "Gamma" waves, you might increase the `35.0` limit to `45.0` or `50.0`.
 
 ---
 
-### What YOU will be able to change (Once it's released):
-When you finally get this notebook, you don't need to understand all the complex math to use it. You can control the entire script using a simple "filter" section at the very top of the file:
+## 5. Analyzing the Results [analysis.ipynb](analysis.ipynb)
 
-* **Filter by Participant:** If you only want to analyze your own data (let's say you are Participant 3), you can change `FILTER_PARTICIPANTS = None` to `FILTER_PARTICI1PANTS = [3]`. 
-* **Filter by Condition:**
-  If you only want to generate graphs for the "eyes closed" test, you can change `FILTER_CONDITIONS = None` to `FILTER_CONDITIONS = ['closed_eyes']`.
-* **Tweaking the Bands:**
-  If you read a paper that defines the "Alpha" band slightly differently (e.g., 8-12 Hz instead of 8-13 Hz), you can simply change the numbers in the `BANDS = {...}` dictionary at the top, and the entire notebook will recalculate everything using your new rules!
+If `preprocess.py` was the digital sieve that cleaned your data, `analysis.ipynb` is the laboratory microscope. It performs the heavy mathematical lifting—extracting features like **spectral entropy**, **Hjorth parameters**, and **aperiodic slopes**—and compiles them into a master spreadsheet.
+
+### 1. What does this script compute?
+The notebook extracts a "fingerprint" of brain activity for every recording:
+
+| Category | Features | What it measures |
+| :--- | :--- | :--- |
+| **Band Power** | Alpha, Beta, Theta, Delta | The "volume" of specific brain rhythms. |
+| **Symmetry** | **pdBSI** | How balanced the left (TP9) and right (TP10) hemispheres are. |
+| **Complexity** | **Hjorth**, **Entropy** | How irregular or "unpredictable" the brain signal is. |
+| **Ratios** | **DAR**, **DTABR** | The balance between slow (Delta/Theta) and fast (Alpha/Beta) waves. |
+
+---
+
+### 2. Statistical Interpretation (ANOVA)
+The "Final Boss" of the analysis is the **Mixed ANOVA** (Analysis of Variance). This test determines if your experiment actually worked by comparing your **Research Group** against the **Control Group** across multiple sessions.
+
+
+
+#### How to read the `stats_mixed_anova.csv` table:
+When you look at the results table, focus on these three values:
+
+1.  **The Source (What caused the change?):**
+    * **`group`**: Is there a general difference between people who exercised and those who didn't?
+    * **`within`**: Did brainwaves change simply because time passed (Session 1 vs Session 2)?
+    * **`group * within` (Interaction)**: **This is the gold standard.** If this is significant, it means the research group changed *differently* than the control group. This is usually what proves your hypothesis.
+
+2.  **`p-adj` (The "Is it real?" value):**
+    * **$p < 0.05$**: Statistically significant. There is less than a 5% chance this result happened by luck.
+    * **`p-adj` (BH correction)**: We adjust p-values to account for "false positives" because we are testing many brain features at once. **Always trust `p-adj` over raw `p` values.**
+
+3.  **`np2` (Partial Eta-Squared - The "How big is it?" value):**
+    * **0.01**: Small effect (a tiny nudge in brain activity).
+    * **0.06**: Medium effect (a noticeable shift).
+    * **0.14+**: Large effect (a major change in brain state).
+
+---
+
+### 3. Visualizing the Data
+The notebook generates several plots in `results/figures/` to help you "see" the brain:
+
+* **Spectrograms:** Heatmaps showing brain power over time. Bright "clouds" at 10Hz indicate strong Alpha waves.
+* **FOOOF Plots:** Shows the "aperiodic" background noise of the brain. A steeper slope (orange dashed line) often relates to higher levels of relaxation or lower cognitive load.
+* **Group Timelines:** These "dot plots" show every participant's journey. Look for the thin lines connecting dots—if the Research Group lines consistently move up while Control Group lines stay flat, your intervention had an effect!

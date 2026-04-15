@@ -1,0 +1,23 @@
+# Ignore everything by default
+*
+
+# But track these files
+!.gitignore
+!README.md
+!environment.yml
+!eeg_setup.py
+!preprocess.py
+!eeg_check.ipynb
+!analysis_participants_copy.ipynb
+!images/image.png
+
+# Common ignores for data/output folders
+eeg_study/
+records/
+results/
+*.csv
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
