@@ -36,7 +36,7 @@ import numpy as np
 import mne
 import matplotlib.pyplot as plt
 
-BASE_DIR     = "eeg_study"
+BASE_DIR     = "brainhack_eeg_muse"
 PARTICIPANTS = "participants.csv"
 CH_NAMES     = ["TP9", "AF7", "AF8", "TP10"]
 SFREQ        = 256

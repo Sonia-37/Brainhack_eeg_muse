@@ -32,10 +32,10 @@ import subprocess
 import pandas as pd
 from datetime import datetime
 
-N_PARTICIPANTS  = 5
-N_SESSIONS      = 3
+N_PARTICIPANTS  = 10
+N_SESSIONS      = 2
 RECORDING_SECS  = 120
-BASE_DIR        = "eeg_study"
+BASE_DIR        = "brainhack_eeg_muse"
 PARTICIPANTS    = "participants.csv"
 FILE_TYPES      = ("csv", "raw", "filtered")
 ALL_CONDITIONS  = ("open_eyes", "closed_eyes")

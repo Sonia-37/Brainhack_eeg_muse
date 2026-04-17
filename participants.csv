@@ -1,11 +1,12 @@
 id,his_id,first_name,sex,birthday,hand,group
 1,P_01, 01,0,2000-01-01,1,control
-2,P_02, 02,0,2000-01-01,1,experimental
+2,P_02, 02,0,2000-01-01,1,control
 3,P_03, 03,0,2000-01-01,1,control
-4,P_04, 04,0,2000-01-01,1,experimental
+4,P_04, 04,0,2000-01-01,1,control
 5,P_05, 05,0,2000-01-01,1,control
 6,P_06, 06,0,2000-01-01,1,control
-7,P_07, 07,0,2000-01-01,1,experimental
-8,P_08, 08,0,2000-01-01,1,experimental
+7,P_07, 07,0,2000-01-01,1,control
+8,P_08, 08,0,2000-01-01,1,control
 9,P_09, 09,0,2000-01-01,1,control
 10,P_10, 10,0,2000-01-01,1,control
+

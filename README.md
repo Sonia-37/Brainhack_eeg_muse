@@ -6,7 +6,7 @@
 2. [Connecting to the Muse and Checking the Data](#2-connecting-to-the-muse-and-checking-the-data)
 3. [Automating Your Experiment](#3-automating-your-experiment-eeg_setuppy)
 4. [Cleaning and Processing the Data](#4-cleaning-and-processing-the-data-preprocesspy)
-5. [Analyzing the Results](#5-analyzing-the-results-analysisipynb)
+5. [Analyzing the Results](#5-analyzing-the-results-analysis_participantsipynb)
    - [Sections of Notebook](#sections-12--initialisation)
    - [Metric Glossary and How to Interpret Results](#metric-glossary-and-how-to-interpret-results)
    - [Statistical Results — How to Read Them](#statistical-results--how-to-read-them)
@@ -186,7 +186,7 @@ Near the top of `preprocess.py`, you can customize the "cleaning" rules:
 
 ---
 
-## 5. Analyzing the Results [analysis_participants.ipynb](analysis_pRTICIPANTS.ipynb)
+## 5. Analyzing the Results [analysis_participants.ipynb](analysis_participants.ipynb)
 
 ### Sections 1–2 — Initialisation
 
