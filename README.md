@@ -186,7 +186,7 @@ Near the top of `preprocess.py`, you can customize the "cleaning" rules:
 
 ---
 
-## 5. Analyzing the Results [analysis.ipynb](analysis.ipynb)
+## 5. Analyzing the Results [analysis_participants.ipynb](analysis_pRTICIPANTS.ipynb)
 
 ### Sections 1–2 — Initialisation
 
