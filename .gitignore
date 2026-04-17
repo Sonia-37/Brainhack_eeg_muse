@@ -8,7 +8,7 @@
 !eeg_setup.py
 !preprocess.py
 !eeg_check.ipynb
-!analysis_participants_copy.ipynb
+!analysis_participants.ipynb
 !images/image.png
 
 # Common ignores for data/output folders
@@ -16,6 +16,7 @@ eeg_study/
 records/
 results/
 *.csv
+*.ipynb
 
 # Python
 __pycache__/
