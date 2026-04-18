@@ -3,13 +3,39 @@ Participant 01
     1. Rest
     2. Language
     3. Emotion
+
 Participant 02
   Order of tests:
     1. Rest
     2. Language
     3. Emotion
+
 Participant 03
   Order of tests:
     1. Rest
     2. Emotion
     3. Language - very bad reading, poor connection to the muse
+
+Participant 04 - heard a differnt stimulus
+  Order of tests:
+    1. Rest
+    2. Emotion
+    3. Language - very bad reading
+
+Participant 05 - knew the stimulus
+Order of tests:
+    1. Rest
+    2. Emotion
+    3. Language
+
+Participant 06 - knew the stimulus
+Order of tests:
+    1. Rest
+    2. Emotion
+    3. Language 
+
+Participant 07 
+Order of tests:
+    1. Language
+    2. Emotion
+    3. Rest, told us he was thinking about something
