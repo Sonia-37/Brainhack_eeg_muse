@@ -30,12 +30,18 @@ Order of tests:
 
 Participant 06 - knew the stimulus
 Order of tests:
-    1. Rest
+    1. Language
     2. Emotion
-    3. Language 
+    3. Rest
 
 Participant 07 
 Order of tests:
     1. Language
     2. Emotion
-    3. Rest, told us he was thinking about something
+    3. Rest, told us he was thinking about something during rest 
+
+Participant 08
+Order of tests:
+    1. Rest, told us he was thinking about something during rest
+    2. Emotion - wasn't listening
+    3. Language 
