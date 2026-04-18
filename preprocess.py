@@ -74,7 +74,9 @@ def condition_path(p, s, timing, condition):
 
 def find_csv(p, s, timing, condition):
     csv_dir = os.path.join(condition_path(p, s, timing, condition), "csv")
+    print(f"Scanning directory: {csv_dir}")
     if not os.path.isdir(csv_dir):
+        print("...it is actually not a directory.")
         return None
     csvs = sorted(
         [f for f in os.listdir(csv_dir) if f.endswith(".csv")],
