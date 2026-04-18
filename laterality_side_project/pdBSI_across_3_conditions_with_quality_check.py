@@ -41,7 +41,7 @@ CONDITION_COLORS = {
 OUTLIER_SD_THRESHOLD = 3.0
 
 # Data directory — adjust to your local path
-DATA_DIR = Path("/home/cemal/Downloads/data")
+DATA_DIR = Path("data")
 
 
 # ── Helper: compression detection ────────────────────────────────────────────
