@@ -16,15 +16,11 @@ import sys
 #from IPython.nbformat import current as nbformat
 import nbformat
 
-
-
-
 def clear_outputs(nb):
     """Clear output of notebook `nb` INPLACE."""
     for ws in nb.worksheets:
         for cell in ws.cells:
             cell.outputs = []
-
 
 def stripoutput(inputs, inplace=False):
     """
@@ -49,7 +45,6 @@ def stripoutput(inputs, inplace=False):
         else:
             nbformat.write(nb, sys.stdout, 'ipynb')
 
-
 def main():
     from argparse import ArgumentParser
     parser = ArgumentParser(description=__doc__)
@@ -62,7 +57,6 @@ def main():
 
     args = parser.parse_args()
     stripoutput(**vars(args))
-
 
 if __name__ == '__main__':
     main()
