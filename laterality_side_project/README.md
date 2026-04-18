@@ -1,4 +1,4 @@
-= Brain Laterality Side Project
+# Brain Laterality Side Project
 
 In this side project, we used MUSE 2 headband and the Android app to record EEG data in three conditions:
 
