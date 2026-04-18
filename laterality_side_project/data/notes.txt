@@ -1,0 +1,15 @@
+Participant 01
+  Order of tests:
+    1. Rest
+    2. Language
+    3. Emotion
+Participant 02
+  Order of tests:
+    1. Rest
+    2. Language
+    3. Emotion
+Participant 03
+  Order of tests:
+    1. Rest
+    2. Emotion
+    3. Language - very bad reading, poor connection to the muse
