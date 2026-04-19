@@ -1,4 +1,4 @@
-Participant 01 Male  
+Participant 01 Male, RH  
   Order of tests:
     1. Rest
     2. Language
@@ -16,19 +16,19 @@ Participant 03 Female
     2. Emotion
     3. Language - very bad reading, poor connection to the muse
 
-Participant 04 Female - heard a differnt stimulus
+Participant 04 Female, RH - heard a differnt stimulus
   Order of tests:
     1. Rest
     2. Emotion
     3. Language - very bad reading
 
-Participant 05 Female - knew the stimulus
+Participant 05 Female, RH(used to be LH) - knew the stimulus
 Order of tests:
     1. Rest
     2. Emotion
     3. Language
 
-Participant 06 Female - knew the stimulus
+Participant 06 Female, RH - knew the stimulus
 Order of tests:
     1. Language
     2. Emotion
@@ -40,13 +40,13 @@ Order of tests:
     2. Emotion
     3. Rest, told us he was thinking about something during rest 
 
-Participant 08 Male
+Participant 08 Male, RH
 Order of tests:
     1. Rest, told us he was thinking about something during rest
     2. Emotion - wasn't listening
     3. Language 
 
-Participant 09 Female
+Participant 09 Female, RH 
 Order of tests:
     1.  Language
     2.  Rest
